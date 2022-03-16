@@ -1,12 +1,11 @@
 const functions = require("firebase-functions");
-const express = rewuire('express');
+const cors = require('cors')({origin: true});
 const admin = require('firebase-admin');
 
 admin.initializeApp();
 const db = admin.firestore();
 
-
-const app = express();
+// const app = express();
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -16,10 +15,21 @@ const app = express();
 //   response.send("Hello from Firebase!");
 // });
 
-exports .getBooksByPages = functions.https.onRequest((req,res)=>{
-    res.send("hey")
+const booksRef = db.collection("books");
+
+exports.getBooksByPages = functions.https.onRequest(async (req, res) => {
+    cors(req,res, async ()=>{
+        try{
+            
+            const booksData = await booksRef.where("pages","<=",req.body.pages).get();
+            res.status(200).send(booksData.docs);
+        }catch(err){
+            res.status(400).send(err);
+        }
+        
+    })
 })
 
-app.get('/books-pages',(req,res)=>{
-    this.getBooksByPages(req,res);
-})
+// app.get('/books-pages', (req, res) => {
+//     this.getBooksByPages(req, res);
+// })
