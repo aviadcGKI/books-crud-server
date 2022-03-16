@@ -20,9 +20,12 @@ const booksRef = db.collection("books");
 exports.getBooksByPages = functions.https.onRequest(async (req, res) => {
     cors(req,res, async ()=>{
         try{
-            
             const booksData = await booksRef.where("pages","<=",req.body.pages).get();
-            res.status(200).send(booksData.docs);
+            const activeBooksList = [];
+            booksData.docs.forEach((book) => {
+              activeBooksList.push({ ...book.data(), id: book.id })
+            })
+            res.status(200).send(activeBooksList);
         }catch(err){
             res.status(400).send(err);
         }
